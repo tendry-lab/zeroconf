@@ -287,6 +287,12 @@ func (s *Server) recv6(c *ipv6.PacketConn) {
 
 // parsePacket is used to parse an incoming packet
 func (s *Server) parsePacket(packet []byte, ifIndex int, from net.Addr) error {
+	// A wildcard multicast address is used. This means that all multicast packets will
+	// be received by the connection. Bypass packets only from the configured interfaces.
+	if s.ignorePacket(ifIndex) {
+		return nil
+	}
+
 	var msg dns.Msg
 	if err := msg.Unpack(packet); err != nil {
 		// log.Printf("[ERR] zeroconf: Failed to unpack packet: %v", err)
@@ -336,6 +342,21 @@ func (s *Server) handleQuery(query *dns.Msg, ifIndex int, from net.Addr) error {
 	}
 
 	return err
+}
+
+func (s *Server) ignorePacket(ifIndex int) bool {
+	recvIface, _ := net.InterfaceByIndex(ifIndex)
+	if recvIface == nil {
+		return false
+	}
+
+	for _, iface := range s.ifaces {
+		if recvIface.Index == iface.Index {
+			return false
+		}
+	}
+
+	return true
 }
 
 // RFC6762 7.1. Known-Answer Suppression
