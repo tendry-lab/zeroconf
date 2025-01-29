@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/grandcat/zeroconf"
+	"github.com/open-control-systems/zeroconf"
 )
 
 var (
