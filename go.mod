@@ -1,4 +1,4 @@
-module github.com/open-control-systems/zeroconf
+module github.com/tendry-lab/zeroconf
 
 go 1.13
 
